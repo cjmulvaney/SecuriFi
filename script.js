@@ -94,10 +94,8 @@ let hasSkipStep = false;
 let usedSkipStep = false;
 let currentThemeColor = '#5D5CDE';
 let currentStep = 1;
-let characterState = {
-    hat: null,
-    accessory: null,
-};
+let ownedItems = new Set();
+let equippedItems = new Set();
 
 // Color sequence game variables
 let colorSequence = [];
@@ -167,6 +165,46 @@ function updateProgress(step) {
             el.classList.add('active');
         } else {
             el.classList.remove('active');
+        }
+    });
+}
+
+function toggleEquipItem(item) {
+    const hats = ['tinfoil-hat', 'beanie'];
+    const accessories = ['monocle', 'bowtie'];
+
+    if (equippedItems.has(item)) {
+        equippedItems.delete(item);
+    } else {
+        if (hats.includes(item)) {
+            // Unequip any other hats
+            hats.forEach(hat => equippedItems.delete(hat));
+        }
+        equippedItems.add(item);
+    }
+
+    updateCharacterDisplay();
+    updateShopUI();
+}
+
+function updateShopUI() {
+    document.querySelectorAll('[data-upgrade]').forEach(button => {
+        const upgradeType = button.dataset.upgrade;
+        const characterItems = ['tinfoil-hat', 'beanie', 'monocle', 'bowtie'];
+
+        if (characterItems.includes(upgradeType)) {
+            if (ownedItems.has(upgradeType)) {
+                button.innerHTML = equippedItems.has(upgradeType) ? 'Unequip' : 'Equip';
+                button.classList.remove('bg-gold', 'text-gray-800');
+                button.classList.add('bg-primary', 'text-white');
+            } else {
+                // Reconstruct the button's "Buy" state from data attributes
+                const price = button.dataset.price;
+                const priceText = price === '1' ? '1 coin' : `${price} coins`;
+                button.innerHTML = `Buy <span>${priceText}</span>`;
+                button.classList.add('bg-gold', 'text-gray-800');
+                button.classList.remove('bg-primary', 'text-white');
+            }
         }
     });
 }
@@ -558,6 +596,7 @@ function purchaseUpgrade(type, cost) {
     // Deduct coins
     coins -= cost;
     document.getElementById('coins-count').textContent = coins;
+    document.getElementById('shop-coins-count').textContent = coins;
     document.getElementById('final-coins').textContent = coins;
 
     // Apply upgrade effect
@@ -578,20 +617,12 @@ function purchaseUpgrade(type, cost) {
             // This is handled elsewhere
             break;
         case 'tinfoil-hat':
-            characterState.hat = 'tinfoil-hat';
-            updateCharacterDisplay();
-            break;
         case 'monocle':
-            characterState.accessory = 'monocle';
-            updateCharacterDisplay();
-            break;
         case 'beanie':
-            characterState.hat = 'beanie';
-            updateCharacterDisplay();
-            break;
         case 'bowtie':
-            characterState.accessory = 'bowtie';
-            updateCharacterDisplay();
+            ownedItems.add(type);
+            // Immediately equip the item upon purchase
+            toggleEquipItem(type);
             break;
     }
 
@@ -599,26 +630,15 @@ function purchaseUpgrade(type, cost) {
     return true;
 }
 
-
 // Update character display
 function updateCharacterDisplay() {
-    // Hide all hats
-    document.getElementById('char-tinfoil-hat').style.visibility = 'hidden';
-    document.getElementById('char-beanie').style.visibility = 'hidden';
-
-    // Hide all accessories
-    document.getElementById('char-monocle').style.visibility = 'hidden';
-    document.getElementById('char-bowtie').style.visibility = 'hidden';
-
-    // Show selected hat
-    if (characterState.hat) {
-        document.getElementById(`char-${characterState.hat}`).style.visibility = 'visible';
-    }
-
-    // Show selected accessory
-    if (characterState.accessory) {
-        document.getElementById(`char-${characterState.accessory}`).style.visibility = 'visible';
-    }
+    const allItems = ['tinfoil-hat', 'beanie', 'monocle', 'bowtie'];
+    allItems.forEach(item => {
+        const el = document.getElementById(`char-${item}`);
+        if (el) {
+            el.style.visibility = equippedItems.has(item) ? 'visible' : 'hidden';
+        }
+    });
 }
 
 // Show verification hint
@@ -671,6 +691,7 @@ function showVerificationHint() {
 function openShopPanel() {
     // Update shop coin display before opening
     document.getElementById('shop-coins-count').textContent = coins;
+    updateShopUI();
     document.getElementById('upgrades-panel').style.right = '0';
 }
 
@@ -3416,8 +3437,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-upgrade]').forEach(button => {
         button.addEventListener('click', () => {
             const upgradeType = button.dataset.upgrade;
-            let cost;
+            const characterItems = ['tinfoil-hat', 'beanie', 'monocle', 'bowtie'];
 
+            if (characterItems.includes(upgradeType)) {
+                if (ownedItems.has(upgradeType)) {
+                    toggleEquipItem(upgradeType);
+                } else {
+                    const cost = parseInt(button.dataset.price, 10);
+                    purchaseUpgrade(upgradeType, cost);
+                }
+                return;
+            }
+
+            let cost;
             switch (upgradeType) {
                 case 'skip-step':
                     cost = 1200;
@@ -3430,18 +3462,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
                 case 'time-dilation':
                     cost = 25;
-                    break;
-                case 'tinfoil-hat':
-                    cost = 15;
-                    break;
-                case 'monocle':
-                    cost = 10;
-                    break;
-                case 'beanie':
-                    cost = 5;
-                    break;
-                case 'bowtie':
-                    cost = 1;
                     break;
                 default:
                     cost = 0;
