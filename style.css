@@ -512,3 +512,29 @@ input {
     width: 0%;
     transition: width 0.5s ease;
 }
+
+/* Character styles */
+#character-container {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 20;
+    transition: transform 0.3s ease;
+}
+
+#character-container:hover {
+    transform: scale(1.1);
+}
+
+@keyframes bob {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+#character-svg {
+    animation: bob 3s ease-in-out infinite;
+}

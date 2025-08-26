@@ -78,6 +78,50 @@
         </div>
 
         <div class="mb-6">
+            <h4 class="text-white text-sm font-semibold mb-2">Character Customization</h4>
+
+            <div class="bg-gray-700 rounded-lg p-3 mb-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-white">Tinfoil Hat</span>
+                    <button class="px-2 py-1 bg-gold text-gray-800 rounded text-xs font-bold" data-upgrade="tinfoil-hat">
+                        15 coins
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">Extra security against mind-readers.</p>
+            </div>
+
+            <div class="bg-gray-700 rounded-lg p-3 mb-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-white">Suspicious Monocle</span>
+                    <button class="px-2 py-1 bg-gold text-gray-800 rounded text-xs font-bold" data-upgrade="monocle">
+                        10 coins
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">For sophisticated threat analysis.</p>
+            </div>
+
+            <div class="bg-gray-700 rounded-lg p-3 mb-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-white">Propeller Beanie</span>
+                    <button class="px-2 py-1 bg-gold text-gray-800 rounded text-xs font-bold" data-upgrade="beanie">
+                        5 coins
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">For enhanced aerial surveillance.</p>
+            </div>
+
+            <div class="bg-gray-700 rounded-lg p-3 mb-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-white">Dapper Bow Tie</span>
+                    <button class="px-2 py-1 bg-gold text-gray-800 rounded text-xs font-bold" data-upgrade="bowtie">
+                        1 coins
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">Look sharp while being secure.</p>
+            </div>
+        </div>
+
+        <div class="mb-6">
             <h4 class="text-white text-sm font-semibold mb-2">Premium Security Boosters</h4>
 
             <div class="bg-gray-700 rounded-lg p-3 mb-3">
@@ -280,6 +324,43 @@
 
     <!-- Coin animation container -->
     <div id="coin-container" class="fixed pointer-events-none"></div>
+
+    <!-- Character Display -->
+    <div id="character-container" class="fixed bottom-4 left-4 z-20">
+        <svg id="character-svg" width="100" height="150" viewBox="0 0 100 150">
+            <!-- Body -->
+            <rect x="25" y="60" width="50" height="70" fill="#AAAAAA" />
+            <!-- Head -->
+            <rect x="20" y="20" width="60" height="50" fill="#DDDDDD" />
+            <!-- Eyes -->
+            <circle cx="40" cy="45" r="5" fill="white" />
+            <circle cx="60" cy="45" r="5" fill="white" />
+            <circle cx="40" cy="45" r="2" fill="black" />
+            <circle cx="60" cy="45" r="2" fill="black" />
+
+            <!-- Customization slots (hidden by default) -->
+            <g id="char-hat" visibility="hidden">
+                <!-- Tinfoil Hat -->
+                <path d="M 20 20 L 50 0 L 80 20 Z" fill="#D0D0D0" />
+            </g>
+            <g id="char-monocle" visibility="hidden">
+                 <!-- Monocle -->
+                <circle cx="40" cy="45" r="8" fill="none" stroke="gold" stroke-width="2" />
+                <line x1="32" y1="45" x2="20" y2="55" stroke="gold" stroke-width="1" />
+            </g>
+            <g id="char-beanie" visibility="hidden">
+                <!-- Propeller Beanie -->
+                <path d="M 30 20 Q 50 10 70 20" fill="lightblue" />
+                <rect x="48" y="5" width="4" height="10" fill="gray" />
+                <path d="M 40 5 L 60 5" stroke="red" stroke-width="2" />
+            </g>
+            <g id="char-bowtie" visibility="hidden">
+                <!-- Bow Tie -->
+                <path d="M 40 60 L 50 65 L 40 70 Z" fill="red" />
+                <path d="M 60 60 L 50 65 L 60 70 Z" fill="red" />
+            </g>
+        </svg>
+    </div>
 
     <div class="container mx-auto px-4 py-8 max-w-md pt-16">
         <div id="logo" class="flex items-center justify-center mb-6">
