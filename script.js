@@ -577,49 +577,33 @@ function purchaseUpgrade(type, cost) {
         case 'color-change':
             // This is handled elsewhere
             break;
-    }
-
-    sounds.coin.play();
-    return true;
-}
-
-// Purchase a character upgrade
-function purchaseCharacterUpgrade(type, cost) {
-    if (!canAffordUpgrade(cost)) {
-        alert("Not enough coins!");
-        return false;
-    }
-
-    // Deduct coins
-    coins -= cost;
-    document.getElementById('coins-count').textContent = coins;
-    document.getElementById('final-coins').textContent = coins;
-
-    // Apply upgrade effect
-    switch (type) {
         case 'tinfoil-hat':
-            characterState.hat = 'hat';
+            characterState.hat = 'tinfoil-hat';
+            updateCharacterDisplay();
             break;
         case 'monocle':
             characterState.accessory = 'monocle';
+            updateCharacterDisplay();
             break;
         case 'beanie':
             characterState.hat = 'beanie';
+            updateCharacterDisplay();
             break;
         case 'bowtie':
             characterState.accessory = 'bowtie';
+            updateCharacterDisplay();
             break;
     }
 
-    updateCharacterDisplay();
     sounds.coin.play();
     return true;
 }
+
 
 // Update character display
 function updateCharacterDisplay() {
     // Hide all hats
-    document.getElementById('char-hat').style.visibility = 'hidden';
+    document.getElementById('char-tinfoil-hat').style.visibility = 'hidden';
     document.getElementById('char-beanie').style.visibility = 'hidden';
 
     // Hide all accessories
@@ -2672,6 +2656,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start timer
     startTimer();
 
+    // Set initial character state
+    updateCharacterDisplay();
+
     // Initialize circle canvas (for step 10)
     const { clearCanvas: clearCircleCanvas } = initCircleCanvas();
 
@@ -3444,6 +3431,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'time-dilation':
                     cost = 25;
                     break;
+                case 'tinfoil-hat':
+                    cost = 15;
+                    break;
+                case 'monocle':
+                    cost = 10;
+                    break;
+                case 'beanie':
+                    cost = 5;
+                    break;
+                case 'bowtie':
+                    cost = 1;
+                    break;
                 default:
                     cost = 0;
             }
@@ -3458,18 +3457,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // For time dilation, start the relativity quiz instead of direct purchase
             if (upgradeType === 'time-dilation') {
                 startRelativityQuiz();
-                return;
-            }
-
-            if (['tinfoil-hat', 'monocle', 'beanie', 'bowtie'].includes(upgradeType)) {
-                let cost;
-                switch (upgradeType) {
-                    case 'tinfoil-hat': cost = 15; break;
-                    case 'monocle': cost = 10; break;
-                    case 'beanie': cost = 5; break;
-                    case 'bowtie': cost = 1; break;
-                }
-                purchaseCharacterUpgrade(upgradeType, cost);
                 return;
             }
 
