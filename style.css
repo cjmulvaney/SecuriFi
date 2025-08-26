@@ -1,0 +1,514 @@
+/* Somewhat Dark Mode - intentionally poor design */
+.somewhat-dark {
+    --tw-bg-opacity: 1;
+    --tw-text-opacity: 1;
+    --somewhat-dark-bg: #5a5a5a;
+    --somewhat-dark-text: #e0e0c0;
+    --somewhat-dark-card: #6a6a6a;
+}
+
+.somewhat-dark body {
+    background-color: var(--somewhat-dark-bg);
+    color: var(--somewhat-dark-text);
+}
+
+.somewhat-dark .bg-light-bg {
+    background-color: var(--somewhat-dark-bg) !important;
+}
+
+.somewhat-dark .text-light-text {
+    color: var(--somewhat-dark-text) !important;
+}
+
+.somewhat-dark .bg-light-card {
+    background-color: var(--somewhat-dark-card) !important;
+}
+
+/* More intentionally poor styling choices */
+.somewhat-dark input,
+.somewhat-dark select,
+.somewhat-dark button:not(.bg-primary):not(.bg-gold) {
+    background-color: #4a4a4a !important;
+    color: #f0f0aa !important;
+    border-color: #7a7a3a !important;
+}
+
+.somewhat-dark ::placeholder {
+    color: #b0b080 !important;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-10px); }
+    40%, 80% { transform: translateX(10px); }
+}
+.shake {
+    animation: shake 0.5s;
+}
+
+/* Popup notification styles */
+@keyframes bounceIn {
+    0% { transform: scale(0.1); opacity: 0; }
+    60% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+@keyframes floatAround {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(20px, 10px); }
+    50% { transform: translate(-10px, 15px); }
+    75% { transform: translate(-15px, -10px); }
+    100% { transform: translate(0, 0); }
+}
+
+.game-popup {
+    position: fixed;
+    max-width: 300px;
+    z-index: 100;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 10px 15px;
+    animation: bounceIn 0.4s ease-out, floatAround 15s ease-in-out infinite;
+    transition: all 0.3s ease;
+    border: 2px solid;
+}
+
+.popup-close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(0,0,0,0.1);
+}
+
+.dark .game-popup {
+    background-color: #2A2A2A;
+    color: #E0E0E0;
+}
+
+canvas {
+    touch-action: none;
+}
+
+.signature-pad {
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.progress-container {
+    position: relative;
+    height: 8px;
+    width: 100%;
+    background-color: rgba(93, 92, 222, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #5D5CDE;
+    transition: width 0.5s ease;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+}
+
+.progress-step {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(93, 92, 222, 0.2);
+}
+
+.progress-step.active {
+    background-color: #5D5CDE;
+}
+
+/* Light/Dark mode transitions */
+.transition-colors {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Custom drawing styles */
+#circle-canvas {
+    cursor: crosshair;
+}
+
+/* Elbow scan animation */
+@keyframes scan {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+.scan-animation {
+    background: linear-gradient(45deg, rgba(93, 92, 222, 0.1) 25%, transparent 25%, transparent 50%, rgba(93, 92, 222, 0.1) 50%, rgba(93, 92, 222, 0.1) 75%, transparent 75%, transparent);
+    background-size: 30px 30px;
+    animation: scan 2s linear infinite;
+}
+
+/* Input styling */
+input {
+    font-size: 16px !important; /* Prevent zoom on mobile */
+}
+
+/* Custom checkbox container */
+.checkbox-container {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 3px;
+}
+
+/* On mouse-over, add a grey background color */
+.checkbox-container:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.checkbox-container input:checked ~ .checkmark {
+    background-color: #5D5CDE;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox-container .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Dark mode styles for checkboxes */
+.dark .checkmark {
+    background-color: #555;
+}
+
+.dark .checkbox-container:hover input ~ .checkmark {
+    background-color: #666;
+}
+
+/* Satisfaction Survey Radio Styles */
+.survey-option {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.survey-option:hover {
+    background-color: rgba(93, 92, 222, 0.1);
+}
+
+.survey-option input[type="radio"] {
+    margin-right: 8px;
+}
+
+.survey-option.selected {
+    background-color: rgba(93, 92, 222, 0.2);
+}
+
+/* Gold coin animation */
+@keyframes coinSpin {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+}
+
+.coin {
+    animation: coinSpin 1s linear infinite;
+    transform-style: preserve-3d;
+}
+
+/* Timer style */
+.timer {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Upgrades panel */
+.upgrades-panel {
+    transition: right 0.3s ease-in-out;
+}
+
+.color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.color-swatch.selected {
+    border-color: white;
+    transform: scale(1.2);
+}
+
+/* Fading characters */
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    50% { opacity: 0.2; }
+    100% { opacity: 1; }
+}
+
+.captcha-char {
+    display: inline-block;
+    animation: fadeOut 2s infinite;
+    animation-delay: calc(var(--char-index) * 0.1s);
+    user-select: none; /* Prevent text selection */
+}
+
+/* Make math problem uncopyable */
+.math-expression {
+    user-select: none; /* Prevent text selection */
+}
+
+/* Sliding puzzle */
+.puzzle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 5px;
+    width: 280px;
+    height: 280px;
+}
+
+.puzzle-tile {
+    background-color: #5D5CDE;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.puzzle-tile:hover {
+    transform: scale(0.98);
+}
+
+.puzzle-tile.empty {
+    background-color: transparent;
+    border: 2px dashed #5D5CDE;
+}
+
+/* Math problem styles */
+.math-operand {
+    display: inline-block;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Loan Application styles */
+.loan-step {
+    display: none;
+}
+
+.loan-step.active {
+    display: block;
+}
+
+/* Color sequence game styles */
+.color-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 3px solid transparent;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+}
+
+.color-btn.active {
+    border-color: #333;
+    transform: scale(1.1);
+}
+
+.color-display {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin: 10px auto;
+    transition: background-color 0.3s ease;
+}
+
+/* Dance verification styles */
+.dance-container {
+    width: 100%;
+    height: 200px;
+    border: 2px dashed #5D5CDE;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(93, 92, 222, 0.05);
+}
+
+/* Rhythm game styles */
+.beat-target {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px dashed #5D5CDE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    position: relative;
+}
+
+.beat-indicator {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: rgba(93, 92, 222, 0.8);
+    transform: scale(0);
+    transition: transform 0.1s ease-out;
+}
+
+.beat-timer {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #5D5CDE;
+    transform: scale(0);
+    transition: transform 0.3s ease-out;
+}
+
+/* Connect the dots styles */
+.dots-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    border: 1px solid rgba(93, 92, 222, 0.3);
+    border-radius: 8px;
+    margin: 0 auto;
+    background-color: rgba(93, 92, 222, 0.05);
+}
+
+.dot {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #5D5CDE;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 2;
+}
+
+.dot:hover {
+    transform: scale(1.2);
+}
+
+.dot.connected {
+    background-color: #4CAF50;
+}
+
+.dot-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Quantum entanglement styles */
+.quantum-container {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    border-radius: 8px;
+    background-color: rgba(93, 92, 222, 0.05);
+    overflow: hidden;
+}
+
+.quantum-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #5D5CDE;
+    opacity: 0.7;
+}
+
+.quantum-progress {
+    width: 100%;
+    height: 8px;
+    background-color: rgba(93, 92, 222, 0.2);
+    border-radius: 4px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.quantum-progress-bar {
+    height: 100%;
+    background-color: #5D5CDE;
+    width: 0%;
+    transition: width 0.5s ease;
+}
