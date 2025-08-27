@@ -436,6 +436,11 @@
                     <div class="progress-step" data-step="18"></div>
                     <div class="progress-step" data-step="19"></div>
                     <div class="progress-step" data-step="20"></div>
+                    <div class="progress-step" data-step="21"></div>
+                    <div class="progress-step" data-step="22"></div>
+                    <div class="progress-step" data-step="23"></div>
+                    <div class="progress-step" data-step="24"></div>
+                    <div class="progress-step" data-step="25"></div>
                 </div>
             </div>
 
@@ -1206,8 +1211,89 @@
                 </div>
 
                 <button id="survey-submit" class="w-full bg-primary hover:bg-secondary text-white font-bold py-3 px-4 rounded-lg transition-colors mt-6">
-                    Complete Verification
+                    Continue to Final Steps
                 </button>
+            </div>
+
+            <!-- Step 23: Emotional State Verification -->
+            <div id="step-23" class="step-screen hidden">
+                <h2 class="text-xl font-bold mb-4">Emotional State Verification</h2>
+                <p class="mb-4">Please adjust the slider to accurately reflect your current emotional state regarding this verification process.</p>
+
+                <div class="my-8">
+                    <div class="flex justify-between text-xs text-gray-500 px-1">
+                        <span>Calm</span>
+                        <span>Mildly Annoyed</span>
+                        <span>Existential Dread</span>
+                    </div>
+                    <input type="range" id="emotional-slider" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    <div class="text-center mt-2 font-medium">
+                        Current Value: <span id="slider-value">50</span>
+                    </div>
+                </div>
+
+                <button id="submit-emotion" class="w-full bg-primary hover:bg-secondary text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                    Confirm Emotional State
+                </button>
+
+                <div id="emotion-error" class="mt-4 hidden text-danger text-center font-medium">
+                    Our sensors indicate this is not your true emotional state. Please be more honest.
+                </div>
+            </div>
+
+            <!-- Step 24: Absurd CAPTCHA -->
+            <div id="step-24" class="step-screen hidden">
+                <h2 class="text-xl font-bold mb-4">Advanced Cognitive CAPTCHA</h2>
+                <p class="mb-4">Please select all squares below that evoke the feeling of a Tuesday.</p>
+
+                <div id="tuesday-captcha-grid" class="grid grid-cols-3 gap-2 mb-6">
+                    <!-- 9 squares to be clicked -->
+                    <div class="captcha-square" data-id="1"></div>
+                    <div class="captcha-square" data-id="2"></div>
+                    <div class="captcha-square" data-id="3"></div>
+                    <div class="captcha-square" data-id="4"></div>
+                    <div class="captcha-square" data-id="5"></div>
+                    <div class="captcha-square" data-id="6"></div>
+                    <div class="captcha-square" data-id="7"></div>
+                    <div class="captcha-square" data-id="8"></div>
+                    <div class="captcha-square" data-id="9"></div>
+                </div>
+
+                <button id="submit-captcha-tuesday" class="w-full bg-primary hover:bg-secondary text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                    Verify
+                </button>
+
+                <div id="captcha-tuesday-error" class="mt-4 hidden text-danger text-center font-medium">
+                    That is an incorrect interpretation of "Tuesday". Please try again.
+                </div>
+            </div>
+
+            <!-- Step 25: Refrigerator Light Check -->
+            <div id="step-25" class="step-screen hidden">
+                <h2 class="text-xl font-bold mb-4">Appliance Security Verification</h2>
+                <p class="mb-4">For the final step, please open your refrigerator and confirm that the light is functioning correctly. This is a critical security measure to ensure all your assets are illuminated.</p>
+
+                <div class="my-8 flex justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M7 21h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2zM9 9h6M9 13h6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m-7.07-7.07l.707-.707m12.728 0l-.707.707M5.636 5.636l.707.707m12.728 0l-.707-.707" />
+                    </svg>
+                </div>
+
+                <p class="text-center font-medium mb-6">Is the refrigerator light on?</p>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="fridge-no" class="bg-primary hover:bg-secondary text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                        No, it's dark
+                    </button>
+                    <button id="fridge-yes" class="bg-primary hover:bg-secondary text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                        Yes, it's working
+                    </button>
+                </div>
+
+                <div id="fridge-error" class="mt-4 hidden text-danger text-center font-medium">
+                    A non-illuminated refrigerator is a security risk. Please resolve the issue and try again.
+                </div>
             </div>
 
             <!-- Success Screen -->

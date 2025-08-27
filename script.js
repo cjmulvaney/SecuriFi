@@ -171,9 +171,10 @@ function showStep(step) {
 
 // Update progress bar
 function updateProgress(step) {
-    const progressPercent = (step / 20) * 100;
+    const totalSteps = 25;
+    const progressPercent = (step / totalSteps) * 100;
     document.getElementById('progress-bar').style.width = `${progressPercent}%`;
-    document.getElementById('step-counter').textContent = `Step ${step} of 20`;
+    document.getElementById('step-counter').textContent = `Step ${step} of ${totalSteps}`;
 
     // Update step indicators
     document.querySelectorAll('.progress-step').forEach((el, index) => {
@@ -2847,22 +2848,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoanApplication();
     });
 
-    // Update progress bar
-    function updateProgress(step) {
-        const progressPercent = (step / 22) * 100;
-        document.getElementById('progress-bar').style.width = `${progressPercent}%`;
-        document.getElementById('step-counter').textContent = `Step ${step} of 22`;
-
-        // Update step indicators
-        document.querySelectorAll('.progress-step').forEach((el, index) => {
-            if (index + 1 <= step) {
-                el.classList.add('active');
-            } else {
-                el.classList.remove('active');
-            }
-        });
-    }
-
     // Initialize step 1 - Phone validation
     document.getElementById('begin-verification').addEventListener('click', async () => {
         const phone = document.getElementById('phone').value;
@@ -3406,9 +3391,73 @@ document.addEventListener('DOMContentLoaded', () => {
     // Continue to the next step after survey
     document.getElementById('survey-submit').addEventListener('click', async () => {
         sounds.click.play();
+        awardCoins(20);
+        await showLoading("Analyzing survey responses...");
+        showStep(23);
+    });
+
+    // Step 23 - Emotional State
+    const emotionalSlider = document.getElementById('emotional-slider');
+    const sliderValue = document.getElementById('slider-value');
+    emotionalSlider.addEventListener('input', () => {
+        sliderValue.textContent = emotionalSlider.value;
+    });
+
+    document.getElementById('submit-emotion').addEventListener('click', async () => {
+        if (emotionalSlider.value === '87') {
+            sounds.click.play();
+            sounds.success.play();
+            awardCoins(20);
+            await showLoading("Calibrating emotional matrix...");
+            showStep(24);
+        } else {
+            showError('emotion-error');
+        }
+    });
+
+    // Step 24 - Absurd CAPTCHA
+    const captchaSquares = document.querySelectorAll('.captcha-square');
+    const correctTuesdaySquares = new Set(['2', '5', '7']); // The squares that feel like a Tuesday
+    let selectedSquares = new Set();
+
+    captchaSquares.forEach(square => {
+        square.addEventListener('click', () => {
+            const id = square.dataset.id;
+            if (selectedSquares.has(id)) {
+                selectedSquares.delete(id);
+                square.classList.remove('selected');
+            } else {
+                selectedSquares.add(id);
+                square.classList.add('selected');
+            }
+        });
+    });
+
+    document.getElementById('submit-captcha-tuesday').addEventListener('click', async () => {
+        let isCorrect = selectedSquares.size === correctTuesdaySquares.size &&
+                        [...selectedSquares].every(id => correctTuesdaySquares.has(id));
+
+        if (isCorrect) {
+            sounds.click.play();
+            sounds.success.play();
+            awardCoins(20);
+            await showLoading("Analyzing cognitive dissonance...");
+            showStep(25);
+        } else {
+            showError('captcha-tuesday-error');
+        }
+    });
+
+    // Step 25 - Refrigerator Light Check
+    document.getElementById('fridge-no').addEventListener('click', () => {
+        showError('fridge-error');
+    });
+
+    document.getElementById('fridge-yes').addEventListener('click', async () => {
+        sounds.click.play();
         sounds.success.play();
-        awardCoins(75);
-        await showLoading("Processing feedback data...");
+        awardCoins(20);
+        await showLoading("Confirming appliance security protocols...");
 
         // Show success screen
         document.querySelectorAll('.step-screen').forEach(screen => screen.classList.add('hidden'));
@@ -3441,6 +3490,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         });
     });
+
 
     // Cancel loan button
     document.getElementById('cancel-loan').addEventListener('click', () => {

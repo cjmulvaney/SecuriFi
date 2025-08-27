@@ -538,3 +538,27 @@ input {
 #character-svg {
     animation: bob 3s ease-in-out infinite;
 }
+
+.captcha-square {
+    width: 100%;
+    padding-bottom: 100%; /* Maintain 1:1 aspect ratio */
+    background-color: #e0e0e0;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border-radius: 8px;
+}
+
+.dark .captcha-square {
+    background-color: #374151;
+}
+
+.captcha-square:hover {
+    transform: scale(1.05);
+}
+
+.captcha-square.selected {
+    border-color: #5D5CDE; /* primary color */
+    transform: scale(0.95);
+    box-shadow: 0 0 10px rgba(93, 92, 222, 0.5);
+}
