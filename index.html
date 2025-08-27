@@ -362,6 +362,40 @@
         </svg>
     </div>
 
+    <!-- Microphone Permission Modal -->
+    <div id="mic-permission-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4">
+        <div id="mic-permission-prompt" class="bg-light-card dark:bg-dark-card rounded-xl shadow-lg p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Microphone Access</h3>
+            <p class="mb-6">Give permission for this program to use your microphone?</p>
+            <div id="mic-feedback" class="mb-4 hidden text-danger text-center font-medium"></div>
+            <div class="flex justify-end space-x-4">
+                <button id="mic-info-btn" class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors">I need more information</button>
+                <button id="mic-no-btn" class="px-4 py-2 bg-danger text-white rounded-lg hover:bg-danger/80 transition-colors">No</button>
+                <button id="mic-yes-btn" class="px-4 py-2 bg-success text-white rounded-lg hover:bg-success/80 transition-colors">Yes</button>
+            </div>
+        </div>
+
+        <div id="mic-info-view" class="hidden bg-light-card dark:bg-dark-card rounded-xl shadow-lg p-6 w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <h3 class="text-xl font-bold mb-4">Security Information</h3>
+            <div id="info-selection-view">
+                <p class="mb-4">Please select a topic to learn more about:</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button class="info-topic-btn p-4 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" data-topic="rsa">RSA Encryption</button>
+                    <button class="info-topic-btn p-4 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" data-topic="hashing">Cryptographic Hashing</button>
+                    <button class="info-topic-btn p-4 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" data-topic="2fa">Two-Factor Authentication (2FA)</button>
+                    <button class="info-topic-btn p-4 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" data-topic="firewalls">Network Firewalls</button>
+                </div>
+            </div>
+            <div id="info-display-view" class="hidden flex-grow flex flex-col min-h-0">
+                <h4 id="info-topic-title" class="text-lg font-bold mb-2"></h4>
+                <div id="info-topic-text" class="flex-grow overflow-y-auto border p-4 rounded-lg bg-gray-50 dark:bg-gray-900">
+                    <!-- Detailed text will be inserted here -->
+                </div>
+                <button id="info-back-btn" class="hidden mt-4 w-full bg-primary text-white font-bold py-3 px-4 rounded-lg transition-colors">Back to microphone question</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container mx-auto px-4 py-8 max-w-md pt-16">
         <div id="logo" class="flex items-center justify-center mb-6">
             <div class="w-14 h-14 rounded-lg bg-primary flex items-center justify-center">

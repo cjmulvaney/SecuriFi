@@ -148,9 +148,25 @@ let petAttempt = 0;
 // Show a specific step
 function showStep(step) {
     document.querySelectorAll('.step-screen').forEach(screen => screen.classList.add('hidden'));
-    document.getElementById(`step-${step}`).classList.remove('hidden');
+    const stepElement = document.getElementById(`step-${step}`);
+
+    if (step === 11) {
+        // For step 11, show the permission modal instead of the step itself
+        showMicPermissionModal();
+    } else {
+        if (stepElement) {
+            stepElement.classList.remove('hidden');
+        }
+    }
+
     currentStep = step;
     updateProgress(step);
+
+    // Special handling for step 19 to fix dot generation timing
+    if (step === 19 && dotsState.length === 0) {
+        // This is the first time showing step 19, generate the dots now that the container is visible
+        setTimeout(() => generateDots(), 50);
+    }
 }
 
 // Update progress bar
@@ -171,14 +187,17 @@ function updateProgress(step) {
 
 function toggleEquipItem(item) {
     const hats = ['tinfoil-hat', 'beanie'];
-    const accessories = ['monocle', 'bowtie'];
 
     if (equippedItems.has(item)) {
         equippedItems.delete(item);
     } else {
+        // If the item is a hat, unequip other hats
         if (hats.includes(item)) {
-            // Unequip any other hats
-            hats.forEach(hat => equippedItems.delete(hat));
+            hats.forEach(hat => {
+                if (equippedItems.has(hat)) {
+                    equippedItems.delete(hat);
+                }
+            });
         }
         equippedItems.add(item);
     }
@@ -198,13 +217,22 @@ function updateShopUI() {
                 button.classList.remove('bg-gold', 'text-gray-800');
                 button.classList.add('bg-primary', 'text-white');
             } else {
-                // Reconstruct the button's "Buy" state from data attributes
                 const price = button.dataset.price;
-                const priceText = price === '1' ? '1 coin' : `${price} coins`;
+                const priceText = price === "1" ? "1 coin" : `${price} coins`;
                 button.innerHTML = `Buy <span>${priceText}</span>`;
                 button.classList.add('bg-gold', 'text-gray-800');
                 button.classList.remove('bg-primary', 'text-white');
             }
+        }
+    });
+}
+
+function updateCharacterDisplay() {
+    const allItems = ['tinfoil-hat', 'beanie', 'monocle', 'bowtie'];
+    allItems.forEach(item => {
+        const el = document.getElementById(`char-${item}`);
+        if (el) {
+            el.style.visibility = equippedItems.has(item) ? 'visible' : 'hidden';
         }
     });
 }
@@ -630,17 +658,6 @@ function purchaseUpgrade(type, cost) {
     return true;
 }
 
-// Update character display
-function updateCharacterDisplay() {
-    const allItems = ['tinfoil-hat', 'beanie', 'monocle', 'bowtie'];
-    allItems.forEach(item => {
-        const el = document.getElementById(`char-${item}`);
-        if (el) {
-            el.style.visibility = equippedItems.has(item) ? 'visible' : 'hidden';
-        }
-    });
-}
-
 // Show verification hint
 function showVerificationHint() {
     let hintMessage = "";
@@ -691,7 +708,6 @@ function showVerificationHint() {
 function openShopPanel() {
     // Update shop coin display before opening
     document.getElementById('shop-coins-count').textContent = coins;
-    updateShopUI();
     document.getElementById('upgrades-panel').style.right = '0';
 }
 
@@ -1694,162 +1710,167 @@ function initRhythmGame() {
     });
 }
 
-// Initialize connect dots game
-function initConnectDots() {
+// Generate all numbers 1-30 for the Connect the Dots game
+function generateDots() {
     const dotsContainer = document.querySelector('.dots-container');
     const dotLinesSvg = document.getElementById('dot-lines-svg');
+    const connectedCountElement = document.getElementById('connected-count');
+
+    dotsState = [];
+    dotsConnected = [];
+
+    // Clear existing dots and lines
+    Array.from(dotsContainer.querySelectorAll('.dot')).forEach(dot => dot.remove());
+    dotLinesSvg.innerHTML = '';
+
+    // Generate positions for all numbers 1-30
+    const positions = [];
+    const containerWidth = dotsContainer.offsetWidth;
+    const containerHeight = dotsContainer.offsetHeight;
+    const dotSize = 24;
+    const padding = 20;
+
+    // Generate 30 non-overlapping random positions
+    for (let num = 1; num <= 30; num++) {
+        let validPosition = false;
+        let attempts = 0;
+        let posX, posY;
+
+        while (!validPosition && attempts < 100) {
+            // Random position within container bounds
+            posX = padding + Math.random() * (containerWidth - dotSize - padding * 2);
+            posY = padding + Math.random() * (containerHeight - dotSize - padding * 2);
+
+            // Check for overlap with existing dots
+            validPosition = true;
+            for (const pos of positions) {
+                const distance = Math.sqrt(Math.pow(pos.x - posX, 2) + Math.pow(pos.y - posY, 2));
+                // Ensure at least 30px between dots
+                if (distance < 30) {
+                    validPosition = false;
+                    break;
+                }
+            }
+
+            attempts++;
+        }
+
+        // If we couldn't find a valid position, use a grid position as fallback
+        if (!validPosition) {
+            const gridCols = 6;
+            const gridRows = 5;
+            const colWidth = containerWidth / gridCols;
+            const rowHeight = containerHeight / gridRows;
+
+            const col = (num - 1) % gridCols;
+            const row = Math.floor((num - 1) / gridCols);
+
+            posX = col * colWidth + colWidth / 2 - dotSize / 2;
+            posY = row * rowHeight + rowHeight / 2 - dotSize / 2;
+        }
+
+        positions.push({ num, x: posX, y: posY });
+
+        // Create dot element
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.textContent = num;
+        dot.style.left = `${posX}px`;
+        dot.style.top = `${posY}px`;
+
+        // Add small random movement on hover
+        dot.addEventListener('mouseover', () => {
+            if (!dotsConnected.includes(num)) {
+                const offsetX = (Math.random() - 0.5) * 5;
+                const offsetY = (Math.random() - 0.5) * 5;
+                dot.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            }
+        });
+
+        dot.addEventListener('mouseout', () => {
+            if (!dotsConnected.includes(num)) {
+                dot.style.transform = 'translate(0, 0)';
+            }
+        });
+
+        // Add click handler
+        dot.addEventListener('click', () => {
+            handleDotClick(num, posX + dotSize / 2, posY + dotSize / 2);
+        });
+
+        dotsContainer.appendChild(dot);
+        dotsState.push({ num, x: posX + dotSize / 2, y: posY + dotSize / 2 });
+    }
+
+    // Update connected count
+    connectedCountElement.textContent = '0';
+}
+
+// Handle dot click
+function handleDotClick(num, x, y) {
+    const dotsContainer = document.querySelector('.dots-container');
+    const dotLinesSvg = document.getElementById('dot-lines-svg');
+    const feedbackElement = document.getElementById('dots-feedback');
+    const connectedCountElement = document.getElementById('connected-count');
+    const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
+
+    sounds.click.play();
+
+    // Only allow clicking on primes in the correct order
+    if (!primes.includes(num)) {
+        feedbackElement.classList.remove('hidden', 'text-success');
+        feedbackElement.classList.add('text-danger');
+        feedbackElement.textContent = `${num} is not a prime number. Connect the dots in prime number order.`;
+        sounds.error.play();
+        return;
+    }
+
+    // Check if this is the next prime in sequence
+    const nextIndex = dotsConnected.length;
+    if (num !== primes[nextIndex]) {
+        feedbackElement.classList.remove('hidden', 'text-success');
+        feedbackElement.classList.add('text-danger');
+        feedbackElement.textContent = `You need to connect prime ${primes[nextIndex]} next.`;
+        sounds.error.play();
+        return;
+    }
+
+    // Mark this dot as connected
+    dotsConnected.push(num);
+
+    // Update dot appearance
+    const dot = Array.from(dotsContainer.querySelectorAll('.dot')).find(d => parseInt(d.textContent) === num);
+    dot.classList.add('connected');
+
+    // Draw line to previous dot if not the first one
+    if (dotsConnected.length > 1) {
+        const prevNum = dotsConnected[dotsConnected.length - 2];
+        const prevDot = dotsState.find(d => d.num === prevNum);
+
+        // Draw SVG line
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', prevDot.x);
+        line.setAttribute('y1', prevDot.y);
+        line.setAttribute('x2', x);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', currentThemeColor);
+        line.setAttribute('stroke-width', '2');
+        dotLinesSvg.appendChild(line);
+    }
+
+    // Update connected count
+    connectedCountElement.textContent = dotsConnected.length;
+
+    // Hide feedback if showing
+    feedbackElement.classList.add('hidden');
+}
+
+// Initialize connect dots game
+function initConnectDots() {
     const resetButton = document.getElementById('reset-dots');
     const submitButton = document.getElementById('submit-dots');
     const feedbackElement = document.getElementById('dots-feedback');
-    const connectedCountElement = document.getElementById('connected-count');
-
-    // Prime numbers to connect
     const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
-
-    // Generate all numbers 1-30
-    function generateDots() {
-        dotsState = [];
-        dotsConnected = [];
-
-        // Clear existing dots and lines
-        Array.from(dotsContainer.querySelectorAll('.dot')).forEach(dot => dot.remove());
-        dotLinesSvg.innerHTML = '';
-
-        // Generate positions for all numbers 1-30
-        const positions = [];
-        const containerWidth = dotsContainer.offsetWidth;
-        const containerHeight = dotsContainer.offsetHeight;
-        const dotSize = 24;
-        const padding = 20;
-
-        // Generate 30 non-overlapping random positions
-        for (let num = 1; num <= 30; num++) {
-            let validPosition = false;
-            let attempts = 0;
-            let posX, posY;
-
-            while (!validPosition && attempts < 100) {
-                // Random position within container bounds
-                posX = padding + Math.random() * (containerWidth - dotSize - padding * 2);
-                posY = padding + Math.random() * (containerHeight - dotSize - padding * 2);
-
-                // Check for overlap with existing dots
-                validPosition = true;
-                for (const pos of positions) {
-                    const distance = Math.sqrt(Math.pow(pos.x - posX, 2) + Math.pow(pos.y - posY, 2));
-                    // Ensure at least 30px between dots
-                    if (distance < 30) {
-                        validPosition = false;
-                        break;
-                    }
-                }
-
-                attempts++;
-            }
-
-            // If we couldn't find a valid position, use a grid position as fallback
-            if (!validPosition) {
-                const gridCols = 6;
-                const gridRows = 5;
-                const colWidth = containerWidth / gridCols;
-                const rowHeight = containerHeight / gridRows;
-
-                const col = (num - 1) % gridCols;
-                const row = Math.floor((num - 1) / gridCols);
-
-                posX = col * colWidth + colWidth / 2 - dotSize / 2;
-                posY = row * rowHeight + rowHeight / 2 - dotSize / 2;
-            }
-
-            positions.push({ num, x: posX, y: posY });
-
-            // Create dot element
-            const dot = document.createElement('div');
-            dot.className = 'dot';
-            dot.textContent = num;
-            dot.style.left = `${posX}px`;
-            dot.style.top = `${posY}px`;
-
-            // Add small random movement on hover
-            dot.addEventListener('mouseover', () => {
-                if (!dotsConnected.includes(num)) {
-                    const offsetX = (Math.random() - 0.5) * 5;
-                    const offsetY = (Math.random() - 0.5) * 5;
-                    dot.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-                }
-            });
-
-            dot.addEventListener('mouseout', () => {
-                if (!dotsConnected.includes(num)) {
-                    dot.style.transform = 'translate(0, 0)';
-                }
-            });
-
-            // Add click handler
-            dot.addEventListener('click', () => {
-                handleDotClick(num, posX + dotSize / 2, posY + dotSize / 2);
-            });
-
-            dotsContainer.appendChild(dot);
-            dotsState.push({ num, x: posX + dotSize / 2, y: posY + dotSize / 2 });
-        }
-
-        // Update connected count
-        connectedCountElement.textContent = '0';
-    }
-
-    // Handle dot click
-    function handleDotClick(num, x, y) {
-        sounds.click.play();
-
-        // Only allow clicking on primes in the correct order
-        if (!primes.includes(num)) {
-            feedbackElement.classList.remove('hidden', 'text-success');
-            feedbackElement.classList.add('text-danger');
-            feedbackElement.textContent = `${num} is not a prime number. Connect the dots in prime number order.`;
-            sounds.error.play();
-            return;
-        }
-
-        // Check if this is the next prime in sequence
-        const nextIndex = dotsConnected.length;
-        if (num !== primes[nextIndex]) {
-            feedbackElement.classList.remove('hidden', 'text-success');
-            feedbackElement.classList.add('text-danger');
-            feedbackElement.textContent = `You need to connect prime ${primes[nextIndex]} next.`;
-            sounds.error.play();
-            return;
-        }
-
-        // Mark this dot as connected
-        dotsConnected.push(num);
-
-        // Update dot appearance
-        const dot = Array.from(dotsContainer.querySelectorAll('.dot')).find(d => parseInt(d.textContent) === num);
-        dot.classList.add('connected');
-
-        // Draw line to previous dot if not the first one
-        if (dotsConnected.length > 1) {
-            const prevNum = dotsConnected[dotsConnected.length - 2];
-            const prevDot = dotsState.find(d => d.num === prevNum);
-
-            // Draw SVG line
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', prevDot.x);
-            line.setAttribute('y1', prevDot.y);
-            line.setAttribute('x2', x);
-            line.setAttribute('y2', y);
-            line.setAttribute('stroke', currentThemeColor);
-            line.setAttribute('stroke-width', '2');
-            dotLinesSvg.appendChild(line);
-        }
-
-        // Update connected count
-        connectedCountElement.textContent = dotsConnected.length;
-
-        // Hide feedback if showing
-        feedbackElement.classList.add('hidden');
-    }
 
     // Reset the game
     resetButton.addEventListener('click', () => {
@@ -1889,9 +1910,6 @@ function initConnectDots() {
             sounds.error.play();
         }
     });
-
-    // Generate initial dot layout
-    generateDots();
 }
 
 // Initialize refrigerator contents verification
@@ -2669,8 +2687,102 @@ function schedulePopups() {
     });
 }
 
+// --- Step 11: Microphone Permission Modal Logic ---
+
+const securityInfo = {
+    rsa: {
+        title: "RSA (Rivest-Shamir-Adleman) Encryption",
+        text: "RSA is one of the first public-key cryptosystems and is widely used for secure data transmission. The acronym RSA is the initial letters of the surnames of Ron Rivest, Adi Shamir, and Leonard Adleman, who publicly described the algorithm in 1977. In a public-key cryptosystem, the encryption key is public and distinct from the decryption key, which is kept secret (private). An RSA user creates and then publishes a public key based on two large prime numbers, along with an auxiliary value. The prime numbers must be kept secret. Anyone can use the public key to encrypt a message, but only someone with knowledge of the prime numbers can feasibly decode the message. Breaking RSA encryption is known as the RSA problem. As of 2020, the largest factored RSA number was 829 bits long (RSA-250), and it took approximately 2700 CPU-years of computation. This demonstrates the practical security of large RSA keys. The security of RSA relies on the practical difficulty of factoring the product of two large prime numbers, the 'factoring problem'. For a message m, the encrypted message, or ciphertext, c is calculated as c = m^e (mod n), where e is the public exponent and n is the product of the two large prime numbers. The original message m can be recovered from c by using the private key exponent d as m = c^d (mod n). The relationship between e and d is what makes the decryption possible, and d is derived from the prime factors of n, which is why they must be kept secret. This asymmetric nature is a fundamental departure from symmetric-key algorithms, where the same key is used for both encryption and decryption."
+    },
+    hashing: {
+        title: "Cryptographic Hashing",
+        text: "A cryptographic hash function is a mathematical algorithm that maps data of arbitrary size to a bit string of a fixed size (a hash) and is designed to be a one-way function, that is, a function which is infeasible to invert. The ideal cryptographic hash function has five main properties: it is deterministic, meaning the same message always results in the same hash; it is quick to compute the hash value for any given message; it is infeasible to generate a message from its hash value except by trying all possible messages; a small change to a message should change the hash value so extensively that the new hash value appears uncorrelated with the old hash value (avalanche effect); and it is infeasible to find two different messages with the same hash value. These properties are crucial for various applications, such as digital signatures, message authentication codes (MACs), and other forms of authentication. Popular hash functions include MD5, SHA-1, and the SHA-2 family. However, MD5 and SHA-1 are no longer considered secure for most cryptographic uses because 'collision' attacks against them are computationally feasible. SHA-2 (Secure Hash Algorithm 2) includes SHA-256 and SHA-512, which are still considered secure. The security of a hash function is measured in its collision resistance. A collision occurs when two different inputs produce the same output hash. For a hash function with an n-bit output, a brute-force attack to find a collision would, on average, take 2^(n/2) computations, which is known as a birthday attack."
+    },
+    '2fa': {
+        title: "Two-Factor Authentication (2FA)",
+        text: "Two-factor authentication (2FA) is a security process in which users provide two different authentication factors to verify themselves. This process is done to better protect both the user's credentials and the resources the user can access. 2FA provides a higher level of security than single-factor authentication (SFA), which only requires one factor (typically a password). The authentication factors rely on two of three categories: something you know (a password or PIN), something you have (a smart card, a security token, or a smartphone), and something you are (a biometric characteristic like a fingerprint or facial scan). For example, after entering a password (something you know), a user might be required to enter a code sent to their smartphone (something you have). This combination makes it much harder for an unauthorized person to gain access to an account, as they would need to steal both the password and the physical device. Common implementations of 2FA include Time-based One-Time Passwords (TOTP), which generate a temporary code that changes every 30-60 seconds, and SMS-based 2FA, where a code is sent via text message. While 2FA significantly increases security, it is not foolproof. SMS-based 2FA can be vulnerable to SIM-swapping attacks, where an attacker tricks a mobile carrier into transferring the victim's phone number to a new SIM card controlled by the attacker."
+    },
+    firewalls: {
+        title: "Network Firewalls",
+        text: "A network firewall is a security device—either hardware or software—that monitors incoming and outgoing network traffic and decides whether to allow or block specific traffic based on a defined set of security rules. Firewalls have been a first line of defense in network security for over 25 years. They establish a barrier between a trusted internal network and an untrusted external network, such as the Internet. There are several types of firewalls. Packet-filtering firewalls, the most basic type, inspect packets and either pass or drop them based on source and destination IP addresses, protocols, and ports. Stateful inspection firewalls, also known as dynamic packet-filtering firewalls, are more advanced. They maintain a table of open connections and only allow traffic that is part of an established connection to pass through. This provides more security than simple packet filtering because it understands the context of the traffic. Proxy firewalls (or application-level gateways) operate at the application layer, acting as an intermediary for all traffic between the internal and external networks. They can inspect the content of the traffic, providing more granular control and better security, but can also introduce latency. Next-generation firewalls (NGFWs) combine traditional firewall technology with additional functionalities like encrypted traffic inspection, intrusion prevention systems (IPS), and application-aware control. NGFWs provide a more comprehensive level of security by being able to identify and block more sophisticated threats."
+    }
+};
+
+function showMicPermissionModal() {
+    const modal = document.getElementById('mic-permission-modal');
+    const promptView = document.getElementById('mic-permission-prompt');
+    const infoView = document.getElementById('mic-info-view');
+    const feedback = document.getElementById('mic-feedback');
+
+    // Reset to the initial prompt view
+    promptView.classList.remove('hidden');
+    infoView.classList.add('hidden');
+    feedback.classList.add('hidden');
+    modal.classList.remove('hidden');
+}
+
+function initMicPermissionLogic() {
+    const modal = document.getElementById('mic-permission-modal');
+    const promptView = document.getElementById('mic-permission-prompt');
+    const infoView = document.getElementById('mic-info-view');
+    const infoSelectionView = document.getElementById('info-selection-view');
+    const infoDisplayView = document.getElementById('info-display-view');
+    const feedback = document.getElementById('mic-feedback');
+
+    document.getElementById('mic-yes-btn').addEventListener('click', () => {
+        modal.classList.add('hidden');
+        // Actually show step 11 content
+        document.getElementById('step-11').classList.remove('hidden');
+    });
+
+    document.getElementById('mic-no-btn').addEventListener('click', () => {
+        feedback.textContent = "Incorrect. Let me ask again.";
+        feedback.classList.remove('hidden');
+        sounds.error.play();
+    });
+
+    document.getElementById('mic-info-btn').addEventListener('click', () => {
+        promptView.classList.add('hidden');
+        infoView.classList.remove('hidden');
+        infoSelectionView.classList.remove('hidden');
+        infoDisplayView.classList.add('hidden');
+    });
+
+    document.querySelectorAll('.info-topic-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const topic = e.target.dataset.topic;
+            const info = securityInfo[topic];
+
+            document.getElementById('info-topic-title').textContent = info.title;
+            document.getElementById('info-topic-text').innerHTML = `<p>${info.text.replace(/\n/g, '</p><p>')}</p>`;
+
+            infoSelectionView.classList.add('hidden');
+            infoDisplayView.classList.remove('hidden');
+
+            const backBtn = document.getElementById('info-back-btn');
+            const infoTextContainer = document.getElementById('info-topic-text');
+
+            backBtn.classList.add('hidden');
+            infoTextContainer.scrollTop = 0; // Reset scroll position
+
+            const scrollListener = () => {
+                if (infoTextContainer.scrollHeight - infoTextContainer.scrollTop <= infoTextContainer.clientHeight + 50) {
+                    backBtn.classList.remove('hidden');
+                    infoTextContainer.removeEventListener('scroll', scrollListener);
+                }
+            };
+            infoTextContainer.addEventListener('scroll', scrollListener);
+        });
+    });
+
+    document.getElementById('info-back-btn').addEventListener('click', () => {
+        showMicPermissionModal();
+    });
+}
+
 // When DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
+    initMicPermissionLogic();
     // Start scheduling popups
     schedulePopups();
 
@@ -3444,7 +3556,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     toggleEquipItem(upgradeType);
                 } else {
                     const cost = parseInt(button.dataset.price, 10);
-                    purchaseUpgrade(upgradeType, cost);
+                    if (canAffordUpgrade(cost)) {
+                        purchaseUpgrade(upgradeType, cost);
+                    } else {
+                        alert("Not enough coins!");
+                    }
                 }
                 return;
             }
@@ -3468,7 +3584,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Check if user has enough coins
-            if (!canAffordUpgrade(cost)) {
+            if (cost > 0 && !canAffordUpgrade(cost)) {
                 // Show not enough coins message
                 showPurchaseModal(`Not enough coins!`, `This upgrade costs ${cost} coins, but you only have ${coins} coins.`, false);
                 return;
@@ -3481,15 +3597,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Show confirmation for other upgrades
-            showPurchaseModal(
-                `Confirm Purchase`,
-                `Are you sure you want to spend ${cost} coins on this upgrade?`,
-                true,
-                () => {
-                    purchaseUpgrade(upgradeType, cost);
-                    hidePurchaseModal();
-                }
-            );
+            if (cost > 0) {
+                showPurchaseModal(
+                    `Confirm Purchase`,
+                    `Are you sure you want to spend ${cost} coins on this upgrade?`,
+                    true,
+                    () => {
+                        purchaseUpgrade(upgradeType, cost);
+                        hidePurchaseModal();
+                    }
+                );
+            } else {
+                 purchaseUpgrade(upgradeType, cost);
+            }
         });
     });
 
